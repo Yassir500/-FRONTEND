@@ -7,9 +7,15 @@ import { SuccessAlert } from '../components/SuccessAlert'
 export const Register = () => {
   const [formData, setFormData] = useState({
     nombre: '',
+    apellido: '',
     email: '',
     password: '',
-    password_confirmation: ''
+    password_confirmation: '',
+    telefono: '',
+    calle: '',
+    ciudad: '',
+    estado_dir: '',
+    codigo_postal: ''
   })
   const [errors, setErrors] = useState({})
   const [apiError, setApiError] = useState(null)
@@ -32,6 +38,10 @@ export const Register = () => {
 
     if (!formData.nombre.trim()) {
       newErrors.nombre = 'El nombre es requerido'
+    }
+
+    if (!formData.apellido.trim()) {
+      newErrors.apellido = 'El apellido es requerido'
     }
 
     if (!formData.email || !validateEmail(formData.email)) {
@@ -84,9 +94,15 @@ export const Register = () => {
     try {
       const data = await authService.register({
         nombre: formData.nombre,
+        apellido: formData.apellido,
         email: formData.email,
         password: formData.password,
-        password_confirmation: formData.password_confirmation
+        password_confirmation: formData.password_confirmation,
+        telefono: formData.telefono,
+        calle: formData.calle,
+        ciudad: formData.ciudad,
+        estado_dir: formData.estado_dir,
+        codigo_postal: formData.codigo_postal
       })
 
       setSuccessMessage('¡Registro exitoso! Redirigiendo...')
@@ -114,17 +130,31 @@ export const Register = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="nombre">Nombre Completo</label>
+            <label htmlFor="nombre">Nombre</label>
             <input
               type="text"
               id="nombre"
               name="nombre"
               value={formData.nombre}
               onChange={handleChange}
-              placeholder="Tu nombre completo"
+              placeholder="Tu nombre"
               disabled={loading}
             />
             {errors.nombre && <div className="error">{errors.nombre}</div>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="apellido">Apellido</label>
+            <input
+              type="text"
+              id="apellido"
+              name="apellido"
+              value={formData.apellido}
+              onChange={handleChange}
+              placeholder="Tu apellido"
+              disabled={loading}
+            />
+            {errors.apellido && <div className="error">{errors.apellido}</div>}
           </div>
 
           <div className="form-group">
@@ -139,6 +169,76 @@ export const Register = () => {
               disabled={loading}
             />
             {errors.email && <div className="error">{errors.email}</div>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="telefono">Teléfono</label>
+            <input
+              type="text"
+              id="telefono"
+              name="telefono"
+              value={formData.telefono}
+              onChange={handleChange}
+              placeholder="Tu teléfono"
+              disabled={loading}
+            />
+            {errors.telefono && <div className="error">{errors.telefono}</div>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="calle">Calle</label>
+            <input
+              type="text"
+              id="calle"
+              name="calle"
+              value={formData.calle}
+              onChange={handleChange}
+              placeholder="Calle y número"
+              disabled={loading}
+            />
+            {errors.calle && <div className="error">{errors.calle}</div>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="ciudad">Ciudad</label>
+            <input
+              type="text"
+              id="ciudad"
+              name="ciudad"
+              value={formData.ciudad}
+              onChange={handleChange}
+              placeholder="Ciudad"
+              disabled={loading}
+            />
+            {errors.ciudad && <div className="error">{errors.ciudad}</div>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="estado_dir">Estado / Departamento</label>
+            <input
+              type="text"
+              id="estado_dir"
+              name="estado_dir"
+              value={formData.estado_dir}
+              onChange={handleChange}
+              placeholder="Estado o departamento"
+              disabled={loading}
+            />
+            {errors.estado_dir && <div className="error">{errors.estado_dir}</div>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="codigo_postal">Código Postal</label>
+            <input
+              type="text"
+              id="codigo_postal"
+              name="codigo_postal"
+              value={formData.codigo_postal}
+              onChange={handleChange}
+              placeholder="Código postal"
+              disabled={loading}
+            />
+            {errors.codigo_postal && <div className="error">{errors.codigo_postal}</div>}
           </div>
 
           <div className="form-group">
