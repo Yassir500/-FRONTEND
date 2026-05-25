@@ -2,15 +2,21 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { pedidoService } from '../../services/pedidoService'
 import { useCart } from '../../hooks/useCart'
+import { useAuth } from '../../hooks/useAuth'
 import { Toast } from '../../components/Toast'
 import { LoadingSpinner } from '../../components/LoadingSpinner'
 
 export const PedidoForm = () => {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { cart, getCartTotal, clearCart } = useCart()
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState(null)
-  const [formData, setFormData] = useState({ direccion: '', telefono: '', notas: '' })
+  const [formData, setFormData] = useState({ 
+    direccion: '', 
+    telefono: '', 
+    notas: '' 
+  })
   const [errors, setErrors] = useState({})
   const total = getCartTotal()
 
@@ -60,24 +66,48 @@ export const PedidoForm = () => {
 
     setLoading(true)
 
-    const pedidoData = {
-      ...formData,
-      items: cart.map(item => ({
-        producto_id: item.id,
-        cantidad: item.cantidad,
-        precio_unitario: item.precio
-      })),
-      total: total
-    }
-
     try {
-      await pedidoService.create(pedidoData)
+      // Preparar datos del pedido INCLUYENDO dirección y teléfono
+      const pedidoData = {
+        usuario_id: user?.id,
+        direccion: formData.direccion,      // ← Campo agregado
+        telefono: formData.telefono,        // ← Campo agregado
+        notas: formData.notas,              // ← Campo agregado
+        fecha_pedido: new Date().toISOString().split('T')[0],
+        estado_pedido: 1,
+        items: cart.map((item, index) => ({
+          item_id: index + 1,
+          producto_id: item.id,
+          cantidad: item.cantidad,
+          precio_lista: parseFloat(item.precio) || 0,
+          descuento: 0
+        }))
+      }
+
+      console.log('📤 Enviando pedido:', JSON.stringify(pedidoData, null, 2))
+
+      const response = await pedidoService.create(pedidoData)
+      
+      console.log('✅ Pedido creado:', response)
+      
+      const pedidoId = response.data?.id || response.id
+      
       clearCart()
       showToast('Pedido realizado con éxito')
-      setTimeout(() => navigate('/mis-pedidos'), 2000)
+      
+      // Redirigir al detalle del pedido
+      setTimeout(() => {
+        navigate(`/pedidos/${pedidoId}`)
+      }, 1500)
+      
     } catch (error) {
+      console.error('❌ Error al crear pedido:', error)
+      console.error('❌ Response data:', error.response?.data)
+      
       if (error.errors) {
         setErrors(error.errors)
+      } else if (error.response?.data?.message) {
+        showToast(error.response.data.message, 'error')
       } else {
         showToast(error.message || 'Error al crear pedido', 'error')
       }
