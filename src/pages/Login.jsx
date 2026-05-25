@@ -13,7 +13,6 @@ export const Login = () => {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  // Validaciones en tiempo real
   const validateEmail = useCallback((value) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(value)
@@ -23,7 +22,6 @@ export const Login = () => {
     return value.length >= 6
   }, [])
 
-  // Manejar cambios
   const handleEmailChange = useCallback((e) => {
     const value = e.target.value
     setEmail(value)
@@ -54,7 +52,6 @@ export const Login = () => {
     }
   }, [validatePassword])
 
-  // Submit
   const formatApiError = (error) => {
     if (!error) return 'Error al iniciar sesión'
     if (typeof error === 'string') return error
@@ -68,7 +65,6 @@ export const Login = () => {
     e.preventDefault()
     setApiError(null)
 
-    // Validar campos
     if (!email || !validateEmail(email)) {
       setErrors(prev => ({ ...prev, email: 'Email inválido' }))
       return
@@ -83,8 +79,19 @@ export const Login = () => {
 
     try {
       const data = await authService.login(email, password)
+      
+      // Guardar usuario en el contexto
       login(data.usuario, data.token)
-      navigate('/dashboard')
+      
+      // REDIRECCIÓN SEGÚN ROL 
+      const usuario = data.usuario
+      const isAdmin = usuario?.rol === 3 || usuario?.rol === 'admin' || usuario?.is_admin === 1
+      
+      if (isAdmin) {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/productos')
+      }
     } catch (error) {
       setApiError(formatApiError(error))
     } finally {
