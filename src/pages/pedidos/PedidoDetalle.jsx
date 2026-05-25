@@ -56,20 +56,38 @@ export const PedidoDetalle = () => {
         </div>
 
         <div style={{ padding: '20px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-            <div>
-              <h3>Información del cliente</h3>
-              <p><strong>Nombre:</strong> {pedido.usuario?.nombre_completo || pedido.usuario?.nombre || `${pedido.usuario?.nombre} ${pedido.usuario?.apellido}`}</p>
-              <p><strong>Email:</strong> {pedido.usuario?.email}</p>
-            </div>
-            <div>
-              <h3>Detalles de envío</h3>
-              <p><strong>Dirección:</strong> {pedido.direccion || 'No especificada'}</p>
-              <p><strong>Teléfono:</strong> {pedido.telefono || 'No especificado'}</p>
-              <p><strong>Fecha:</strong> {new Date(pedido.created_at).toLocaleString()}</p>
-            </div>
+          {/* Información del cliente */}
+          <div style={{ marginBottom: '20px' }}>
+            <h3>Información del cliente</h3>
+            <p><strong>Nombre:</strong> {pedido.usuario?.nombre_completo || pedido.usuario?.nombre || `${pedido.usuario?.nombre} ${pedido.usuario?.apellido}`}</p>
+            <p><strong>Email:</strong> {pedido.usuario?.email}</p>
           </div>
 
+          {/* Fecha del pedido - SOLO FECHA Y HORA */}
+          <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '10px' }}>📅 Fecha del pedido</h3>
+            <p style={{ margin: 0 }}>
+              {new Date(pedido.created_at).toLocaleString('es-MX', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })}
+            </p>
+          </div>
+
+          {/* Notas del pedido (si existen) */}
+          {pedido.notas && (
+            <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+              <strong>Notas:</strong>
+              <p style={{ margin: '5px 0 0' }}>{pedido.notas}</p>
+            </div>
+          )}
+
+          {/* Productos */}
           <h3>Productos</h3>
           <div className="table-container">
             <table className="table">
@@ -100,13 +118,7 @@ export const PedidoDetalle = () => {
             </table>
           </div>
 
-          {pedido.notas && (
-            <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-              <strong>Notas:</strong>
-              <p style={{ margin: '5px 0 0' }}>{pedido.notas}</p>
-            </div>
-          )}
-
+          {/* Total */}
           <div style={{ marginTop: '20px', textAlign: 'right', fontSize: '1.25rem' }}>
             <strong>Total:</strong> 
             <span style={{ color: '#27ae60', fontSize: '1.5rem', marginLeft: '10px' }}>
