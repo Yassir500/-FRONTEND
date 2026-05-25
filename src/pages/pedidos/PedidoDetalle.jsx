@@ -10,11 +10,10 @@ export const PedidoDetalle = () => {
   const [loading, setLoading] = useState(true)
 
   const estadosConfig = {
-    pendiente: { color: '#f39c12', label: 'Pendiente' },
-    procesando: { color: '#3498db', label: 'Procesando' },
-    enviado: { color: '#9b59b6', label: 'Enviado' },
-    entregado: { color: '#27ae60', label: 'Entregado' },
-    cancelado: { color: '#e74c3c', label: 'Cancelado' }
+    1: { color: '#f39c12', label: 'Pendiente' },
+    2: { color: '#3498db', label: 'Procesando' },
+    3: { color: '#e74c3c', label: 'Rechazado' },
+    4: { color: '#27ae60', label: 'Completado' }
   }
 
   useEffect(() => {
@@ -25,9 +24,11 @@ export const PedidoDetalle = () => {
     setLoading(true)
     try {
       const response = await pedidoService.getById(id)
+      console.log('📦 Pedido recibido:', response)
       setPedido(response.data || response)
     } catch (error) {
-      navigate(-1)
+      console.error('Error al cargar pedido:', error)
+      navigate('/mis-pedidos')
     } finally {
       setLoading(false)
     }
@@ -45,8 +46,12 @@ export const PedidoDetalle = () => {
       <div style={{ backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden' }}>
         <div style={{ backgroundColor: '#2c3e50', color: 'white', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0 }}>Pedido #{pedido.id}</h2>
-          <span style={{ padding: '5px 15px', borderRadius: '20px', backgroundColor: estadosConfig[pedido.estado]?.color || '#95a5a6' }}>
-            {estadosConfig[pedido.estado]?.label || pedido.estado}
+          <span style={{ 
+            padding: '5px 15px', 
+            borderRadius: '20px', 
+            backgroundColor: estadosConfig[pedido.estado_pedido]?.color || '#95a5a6' 
+          }}>
+            {estadosConfig[pedido.estado_pedido]?.label || 'Desconocido'}
           </span>
         </div>
 
@@ -59,8 +64,8 @@ export const PedidoDetalle = () => {
             </div>
             <div>
               <h3>Detalles de envío</h3>
-              <p><strong>Dirección:</strong> {pedido.direccion}</p>
-              <p><strong>Teléfono:</strong> {pedido.telefono}</p>
+              <p><strong>Dirección:</strong> {pedido.direccion || 'No especificada'}</p>
+              <p><strong>Teléfono:</strong> {pedido.telefono || 'No especificado'}</p>
               <p><strong>Fecha:</strong> {new Date(pedido.created_at).toLocaleString()}</p>
             </div>
           </div>
@@ -69,17 +74,28 @@ export const PedidoDetalle = () => {
           <div className="table-container">
             <table className="table">
               <thead>
-                <tr><th>Producto</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio unitario</th>
+                  <th>Subtotal</th>
+                </tr>
               </thead>
               <tbody>
-                {pedido.items?.map(item => (
-                  <tr key={item.id}>
-                    <td>{item.producto?.nombre}</td>
-                    <td>{item.cantidad}</td>
-                    <td>${item.precio_unitario}</td>
-                    <td>${item.cantidad * item.precio_unitario}</td>
+                {pedido.items && pedido.items.length > 0 ? (
+                  pedido.items.map(item => (
+                    <tr key={item.id}>
+                      <td>{item.producto?.nombre_producto || 'Producto no disponible'}</td>
+                      <td>{item.cantidad}</td>
+                      <td>${parseFloat(item.precio_lista).toFixed(2)}</td>
+                      <td>${(item.cantidad * parseFloat(item.precio_lista)).toFixed(2)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" style={{ textAlign: 'center' }}>No hay productos en este pedido</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -92,7 +108,10 @@ export const PedidoDetalle = () => {
           )}
 
           <div style={{ marginTop: '20px', textAlign: 'right', fontSize: '1.25rem' }}>
-            <strong>Total:</strong> <span style={{ color: '#27ae60', fontSize: '1.5rem' }}>${pedido.total}</span>
+            <strong>Total:</strong> 
+            <span style={{ color: '#27ae60', fontSize: '1.5rem', marginLeft: '10px' }}>
+              ${pedido.total ? parseFloat(pedido.total).toFixed(2) : '0.00'}
+            </span>
           </div>
         </div>
       </div>
