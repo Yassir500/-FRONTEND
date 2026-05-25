@@ -1,7 +1,6 @@
 import apiClient from './api'
 
 export const pedidoService = {
-  // Obtener todos los pedidos
   getAll: async (filters = {}) => {
     try {
       const response = await apiClient.get('/pedidos', { params: filters })
@@ -11,7 +10,6 @@ export const pedidoService = {
     }
   },
 
-  // Obtener un pedido
   getById: async (id) => {
     try {
       const response = await apiClient.get(`/pedidos/${id}`)
@@ -21,17 +19,18 @@ export const pedidoService = {
     }
   },
 
-  // Crear pedido
   create: async (data) => {
     try {
+      console.log('📤 Creando pedido:', data)
       const response = await apiClient.post('/pedidos', data)
+      console.log('✅ Pedido creado:', response.data)
       return response.data
     } catch (error) {
+      console.error('❌ Error en create:', error.response?.data)
       throw error.response?.data || { message: 'Error al crear pedido' }
     }
   },
 
-  // Actualizar pedido
   update: async (id, data) => {
     try {
       const response = await apiClient.put(`/pedidos/${id}`, data)
@@ -41,7 +40,6 @@ export const pedidoService = {
     }
   },
 
-  // Eliminar pedido
   delete: async (id) => {
     try {
       await apiClient.delete(`/pedidos/${id}`)
